@@ -14,11 +14,13 @@ import { map } from 'rxjs';
   imports: [PlacesComponent, PlacesContainerComponent],
 })
 export class AvailablePlacesComponent {
+  isFetching = signal(false);
   places = signal<Place[] | undefined>(undefined);
 
   constructor(private httpClient:HttpClient, private destroyRef: DestroyRef){}
 
   ngOnInit(){
+    this.isFetching.set(true)
     const subscription =
       this.httpClient.get<{ places:Place[] }>('http://localhost:8080/places')
       .pipe(
@@ -27,6 +29,9 @@ export class AvailablePlacesComponent {
       .subscribe({
         next:(resData)=>{
           this.places.set(resData);
+        },
+        complete:() =>{
+          this.isFetching.set(false);
         }
       });
 
